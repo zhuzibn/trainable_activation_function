@@ -6,8 +6,8 @@ input_layer_size  = 784;  % 28x28 Input Images of Digits
 hidden_layer_size = 25;   % 25 hidden units
 num_labels = 10;          % 10 labels, from 1 to 10
 % (note that we have mapped "0" to label 10)
-modee=2;%1:without k,c 2:with k,c  3:with k
-firstlayeraf=2;%the activation function of the first layer is 1:sigmoid 2:relu
+modee=3;%1:x 2:k(x+c)  3:kx  4:kx+c
+firstlayeraf=1;%the activation function of the first layer is 1:sigmoid 2:relu
 find_max_weight=0;
 discretization=0;%1/0: discretize/not-discretize the weight
 nonlinearity=0;%1/0: weight update is nonlinear/linear
@@ -65,7 +65,7 @@ end
 
 if ddebug
     %save('tmp.mat','initial_Theta1','initial_Theta2','initial_k1','initial_k2','initial_c1','initial_c2')
-    load('tmp_kc.mat');
+    load('savedweights.mat') ;
     %load('savedweights.mat');
     w1=initial_Theta1;
     k1=initial_k1;
@@ -105,7 +105,7 @@ end
 %% gradient descent
 num_iters=1000;
 alpha = 0.3;
-lambdaa=0.3;%regularization constant
+lambdaa=0;%regularization constant
 J_ = zeros(num_iters, 1);
 a0=[ones(m,1) X];
 iterplot=[1:num_iters];
@@ -293,6 +293,17 @@ for iter = 1:num_iters
         
     end
 end
+switch modee
+    case 1
+        k1=ones(size(k1));
+        k2=ones(size(k2));
+        xc1=zeros(size(xc1));
+        xc2=zeros(size(xc2));
+    case 2
+    case 3
+        %xc1=zeros(size(xc1));
+        %xc2=zeros(size(xc2));
+end
 Theta1_neg_max=-Theta1_neg_max;
 Theta2_neg_max=-Theta2_neg_max;
 
@@ -308,7 +319,7 @@ fprintf('\nTest Set Accuracy: %f\n', mean(double(pred == ytest)) * 100);
 predic=mean(double(pred == ytest)) * 100;
 
 toc
-save('final.mat','predic');
+%save('final.mat','predic');
 if (0)
     plot(iterplot,J,'*')
     xlabel('iterations');ylabel('J')
