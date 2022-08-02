@@ -301,8 +301,8 @@ switch modee
         xc2=zeros(size(xc2));
     case 2
     case 3
-        %xc1=zeros(size(xc1));
-        %xc2=zeros(size(xc2));
+        xc1=zeros(size(xc1));
+        xc2=zeros(size(xc2));
 end
 Theta1_neg_max=-Theta1_neg_max;
 Theta2_neg_max=-Theta2_neg_max;
