@@ -6,9 +6,9 @@ input_layer_size  = 784;  % 28x28 Input Images of Digits
 hidden_layer_size = 25;   % 25 hidden units
 num_labels = 10;          % 10 labels, from 1 to 10
 % (note that we have mapped "0" to label 10)
-modee=3;%1:x 2:k(x+c)  3:kx  4:kx+c
-firstlayeraf=1;%the activation function of the first layer is 1:sigmoid 2:relu
-find_max_weight=0;
+modee=2;%1:x 2:k(x+c)  3:kx  4:kx+c
+firstlayeraf=2;%the activation function of the first layer is 1:sigmoid 2:relu
+find_max_weight=1;
 discretization=0;%1/0: discretize/not-discretize the weight
 nonlinearity=0;%1/0: weight update is nonlinear/linear
 oss=1;%1:windows 0 linux
@@ -110,10 +110,20 @@ J_ = zeros(num_iters, 1);
 a0=[ones(m,1) X];
 iterplot=[1:num_iters];
 
-Theta1_pos_max=0;
-Theta1_neg_max=0;
-Theta2_pos_max=0;
-Theta2_neg_max=0;
+if find_max_weight %give initial value
+w1_pos_max=0;
+w1_neg_max=0;
+w2_pos_max=0;
+w2_neg_max=0;
+k1_pos_max=0;
+k1_neg_max=0;
+k2_pos_max=0;
+k2_neg_max=0;
+xc1_pos_max=0;
+xc1_neg_max=0;
+xc2_pos_max=0;
+xc2_neg_max=0;
+end
 
 for iter = 1:num_iters
     dcdw2ave=zeros(size(w2));%average
@@ -271,26 +281,12 @@ for iter = 1:num_iters
     end
     %find max weight
     if find_max_weight
-        Theta1_pos_max_tmp=max(w1(w1>0));
-        if ~isempty(Theta1_pos_max_tmp)
-            Theta1_pos_max=max(Theta1_pos_max_tmp,Theta1_pos_max);
-        end
-        
-        Theta1_neg_max_tmp=max(-w1(w1<0));
-        if ~isempty(Theta1_neg_max_tmp)
-            Theta1_neg_max=max(Theta1_neg_max_tmp,Theta1_neg_max);
-        end
-        
-        Theta2_pos_max_tmp=max(w2(w2>0));
-        if ~isempty(Theta2_pos_max_tmp)
-            Theta2_pos_max=max(Theta2_pos_max_tmp,Theta2_pos_max);
-        end
-        
-        Theta2_neg_max_tmp=max(-w2(w2<0));
-        if ~isempty(Theta2_neg_max_tmp)
-            Theta2_neg_max=max(Theta2_neg_max_tmp,Theta2_neg_max);
-        end
-        
+        [w1_pos_max,w1_neg_max]=find_max_variable(w1,w1_pos_max,w1_neg_max);
+        [w2_pos_max,w2_neg_max]=find_max_variable(w2,w2_pos_max,w2_neg_max);
+        [k1_pos_max,k1_neg_max]=find_max_variable(k1,k1_pos_max,k1_neg_max);
+        [k2_pos_max,k2_neg_max]=find_max_variable(k2,k2_pos_max,k2_neg_max);
+        [xc1_pos_max,xc1_neg_max]=find_max_variable(xc1,xc1_pos_max,xc1_neg_max);
+        [xc2_pos_max,xc2_neg_max]=find_max_variable(xc2,xc2_pos_max,xc2_neg_max);
     end
 end
 switch modee
@@ -304,9 +300,16 @@ switch modee
         xc1=zeros(size(xc1));
         xc2=zeros(size(xc2));
 end
-Theta1_neg_max=-Theta1_neg_max;
-Theta2_neg_max=-Theta2_neg_max;
-
+if find_max_weight
+w1_neg_max=-w1_neg_max;
+w2_neg_max=-w2_neg_max;
+k1_neg_max=-k1_neg_max;
+k2_neg_max=-k2_neg_max;
+xc1_neg_max=-xc1_neg_max;
+xc2_neg_max=-xc2_neg_max;
+%[w1_pos_max,w1_neg_max,w2_pos_max,w2_neg_max,k1_pos_max,k1_neg_max,...
+%    k2_pos_max,k2_neg_max,xc1_pos_max,xc1_neg_max,xc2_pos_max,xc2_neg_max]
+end
 %% Implement Predict
 %  After training the neural network, we would like to use it to predict
 %  the labels. You will now implement the "predict" function to use the
