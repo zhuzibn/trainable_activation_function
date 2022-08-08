@@ -6,8 +6,9 @@ input_layer_size  = 784;  % 28x28 Input Images of Digits
 hidden_layer_size = 25;   % 25 hidden units
 num_labels = 10;          % 10 labels, from 1 to 10
 % (note that we have mapped "0" to label 10)
-modee=2;%1:x 2:k(x+c)  3:kx  4:kx+c
-firstlayeraf=2;%the activation function of the first layer is 1:sigmoid 2:relu
+modee=2;%1:x 2:k(x+c)  3:kx  4:kx+c (to do)  
+%5: k is obtained from backpropagation, c follows certain relation with k
+firstlayeraf=1;%the activation function of the first layer is 1:sigmoid 2:relu
 find_max_weight=1;
 discretization=0;%1/0: discretize/not-discretize the weight
 nonlinearity=0;%1/0: weight update is nonlinear/linear
@@ -105,7 +106,6 @@ end
 %% gradient descent
 num_iters=1000;
 alpha = 0.3;
-lambdaa=0;%regularization constant
 J_ = zeros(num_iters, 1);
 a0=[ones(m,1) X];
 iterplot=[1:num_iters];
@@ -143,6 +143,8 @@ for iter = 1:num_iters
         case 3
             xc1=zeros(size(xc1));
             xc2=zeros(size(xc2));
+        case 4
+        case 5
     end
     %% forward propagation
     z1=w1*a0';
@@ -156,17 +158,7 @@ for iter = 1:num_iters
     z2=w2*a1;
     a2=sigmoid(z2,k2,xc2);
     
-    switch modee
-        case 1
-            J(iter)=sum(sum(-y_tmp.*log(a2)-(1-y_tmp).*log(1-a2)))/m+...
-                lambdaa/(2*m)*(sum(sum(w1.^2))+sum(sum(w2.^2)));
-        case 2
-            J(iter)=sum(sum(-y_tmp.*log(a2)-(1-y_tmp).*log(1-a2)))/m+...
-                lambdaa/(2*m)*(sum(sum(w1.^2))+sum(sum(w2.^2))+sum(sum(k1.^2))+sum(sum(k2.^2))+sum(sum(xc1.^2))+sum(sum(xc2.^2)));
-        case 3
-            J(iter)=sum(sum(-y_tmp.*log(a2)-(1-y_tmp).*log(1-a2)))/m+...
-                lambdaa/(2*m)*(sum(sum(w1.^2))+sum(sum(w2.^2))+sum(sum(k1.^2))+sum(sum(k2.^2)));
-    end
+    J(iter)=sum(sum(-y_tmp.*log(a2)-(1-y_tmp).*log(1-a2)));
 
     [iter,J(iter)];
     
@@ -225,23 +217,23 @@ for iter = 1:num_iters
         dcdxc1=tmp1.*da1dxc1;
         
     dcdw2ave=dcdw2/m;        
-    dcdw2ave(:,2:end)=dcdw2ave(:,2:end)+2*lambdaa*w2(:,2:end)/m;%change to zeros(?)
+    dcdw2ave(:,2:end)=dcdw2ave(:,2:end);%change to zeros(?)
     
     dcdw1ave=dcdw1/m;
-    dcdw1ave(:,2:end)=dcdw1ave(:,2:end)+2*lambdaa*w1(:,2:end)/m;
+    dcdw1ave(:,2:end)=dcdw1ave(:,2:end);
     
     dcdk2ave=sum(dcdk2,2)/m;
-    dcdk2ave(:,2:end)=dcdk2ave(:,2:end)+2*lambdaa*k2(:,2:end)/m;
+    dcdk2ave(:,2:end)=dcdk2ave(:,2:end);
     %the regularization is also problematic, but since it only has one column, the result is correct
     
     dcdk1ave=sum(dcdk1,2)/m;
-    dcdk1ave(:,2:end)=dcdk1ave(:,2:end)+2*lambdaa*k1(:,2:end)/m;
+    dcdk1ave(:,2:end)=dcdk1ave(:,2:end);
     
     dcdxc2ave=sum(dcdxc2,2)/m;
-    dcdxc2ave(:,2:end)=dcdxc2ave(:,2:end)+2*lambdaa*xc2(:,2:end)/m;
+    dcdxc2ave(:,2:end)=dcdxc2ave(:,2:end);
     
     dcdxc1ave=sum(dcdxc1,2)/m;
-    dcdxc1ave(:,2:end)=dcdxc1ave(:,2:end)+2*lambdaa*xc1(:,2:end)/m;
+    dcdxc1ave(:,2:end)=dcdxc1ave(:,2:end);
 
     if nonlinearity
         G1max=Theta1_max_pos-Theta1_max_neg_;
