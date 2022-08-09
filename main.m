@@ -103,15 +103,14 @@ end
 %
 
 %% gradient descent
-num_iters=1000;
-iter_output=100;%save the prediction accuracy every #iter_output
+num_iters=100;
+iter_output=10;%save the prediction accuracy every #iter_output
 alpha = 0.3;
-J_ = zeros(num_iters, 1);
 a0=[ones(m,1) X];
-iterplot=[1:num_iters];
+iterplot=linspace(1,num_iters,floor(num_iters/iter_output));
 
 predic_=zeros(1,floor(num_iters/iter_output));
-
+J_=zeros(1,floor(num_iters/iter_output));
 if find_max_weight %give initial value
     w1_pos_max=0;
     w1_neg_max=0;
@@ -157,10 +156,8 @@ for iter = 1:num_iters
     z2=w2*a1;
     a2=sigmoid(z2,k2,xc2);
     
-    J(iter)=sum(sum(-y_tmp.*log(a2)-(1-y_tmp).*log(1-a2)));
     
-    [iter,J(iter)];
-    
+       
     %% backward propagation
     switch firstlayeraf
         case 1
@@ -292,6 +289,7 @@ for iter = 1:num_iters
         pred = predict(w1, w2, k1,k2,xc1,xc2,Xtest,firstlayeraf);
         pred_ind=floor(iter/iter_output);
         predic_(pred_ind)=mean(double(pred == ytest)) * 100;
+        J_(pred_ind)=sum(sum(-y_tmp.*log(a2)-(1-y_tmp).*log(1-a2)))/m;
     end
 end
 
@@ -302,14 +300,19 @@ if find_max_weight
     k2_neg_max=-k2_neg_max;
     xc1_neg_max=-xc1_neg_max;
     xc2_neg_max=-xc2_neg_max;
-    %[w1_pos_max,w1_neg_max,w2_pos_max,w2_neg_max,k1_pos_max,k1_neg_max,...
-    %    k2_pos_max,k2_neg_max,xc1_pos_max,xc1_neg_max,xc2_pos_max,xc2_neg_max]
+    w_=[w1_pos_max,w1_neg_max,w2_pos_max,w2_neg_max,k1_pos_max,k1_neg_max,...
+        k2_pos_max,k2_neg_max,xc1_pos_max,xc1_neg_max,xc2_pos_max,xc2_neg_max];
+else
+    w_=0;
 end
 
 toc
-%save('final.mat','predic');
+save('final.mat','predic_','J_','w_','iterplot');
 if (0)
-    plot(iterplot,J,'*')
+    figure;
+    plot(iterplot,predic_,'*')
+    figure
+    plot(iterplot,J_,'o')
     xlabel('iterations');ylabel('J')
 end
 
