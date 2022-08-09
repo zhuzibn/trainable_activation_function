@@ -104,10 +104,13 @@ end
 
 %% gradient descent
 num_iters=1000;
+iter_output=100;%save the prediction accuracy every #iter_output
 alpha = 0.3;
 J_ = zeros(num_iters, 1);
 a0=[ones(m,1) X];
 iterplot=[1:num_iters];
+
+predic_=zeros(1,floor(num_iters/iter_output));
 
 if find_max_weight %give initial value
     w1_pos_max=0;
@@ -285,6 +288,11 @@ for iter = 1:num_iters
         [xc1_pos_max,xc1_neg_max]=find_max_variable(xc1,xc1_pos_max,xc1_neg_max);
         [xc2_pos_max,xc2_neg_max]=find_max_variable(xc2,xc2_pos_max,xc2_neg_max);
     end
+    if mod(iter,iter_output)==0
+        pred = predict(w1, w2, k1,k2,xc1,xc2,Xtest,firstlayeraf);
+        pred_ind=floor(iter/iter_output);
+        predic_(pred_ind)=mean(double(pred == ytest)) * 100;
+    end
 end
 
 if find_max_weight
@@ -297,16 +305,6 @@ if find_max_weight
     %[w1_pos_max,w1_neg_max,w2_pos_max,w2_neg_max,k1_pos_max,k1_neg_max,...
     %    k2_pos_max,k2_neg_max,xc1_pos_max,xc1_neg_max,xc2_pos_max,xc2_neg_max]
 end
-%% Implement Predict
-%  After training the neural network, we would like to use it to predict
-%  the labels. You will now implement the "predict" function to use the
-%  neural network to predict the labels of the training set. This lets
-%  you compute the training set accuracy.
-
-pred = predict(w1, w2, k1,k2,xc1,xc2,Xtest,firstlayeraf);
-
-fprintf('\nTest Set Accuracy: %f\n', mean(double(pred == ytest)) * 100);
-predic=mean(double(pred == ytest)) * 100;
 
 toc
 %save('final.mat','predic');
