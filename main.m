@@ -109,7 +109,8 @@ alpha = 0.3;
 a0=[ones(m,1) X];
 iterplot=linspace(1,num_iters,floor(num_iters/iter_output));
 
-predic_=zeros(1,floor(num_iters/iter_output));
+predic_test=zeros(1,floor(num_iters/iter_output));
+predic_train=zeros(1,floor(num_iters/iter_output));
 J_=zeros(1,floor(num_iters/iter_output));
 if find_max_weight %give initial value
     w1_pos_max=0;
@@ -286,9 +287,11 @@ for iter = 1:num_iters
         [xc2_pos_max,xc2_neg_max]=find_max_variable(xc2,xc2_pos_max,xc2_neg_max);
     end
     if mod(iter,iter_output)==0
-        pred = predict(w1, w2, k1,k2,xc1,xc2,Xtest,firstlayeraf);
         pred_ind=floor(iter/iter_output);
-        predic_(pred_ind)=mean(double(pred == ytest)) * 100;
+        pred_test = predict(w1, w2, k1,k2,xc1,xc2,Xtest,firstlayeraf);
+        pred_train = predict(w1, w2, k1,k2,xc1,xc2,X,firstlayeraf);
+        predic_test(pred_ind)=mean(double(pred_test == ytest)) * 100;
+        predic_train(pred_ind)=mean(double(pred_train == y)) * 100;
         J_(pred_ind)=sum(sum(-y_tmp.*log(a2)-(1-y_tmp).*log(1-a2)))/m;
     end
 end
@@ -310,7 +313,7 @@ toc
 save('final.mat','predic_','J_','w_','iterplot');
 if (0)
     figure;
-    plot(iterplot,predic_,'*')
+    plot(iterplot,predic_test,'*')
     figure
     plot(iterplot,J_,'o')
     xlabel('iterations');ylabel('J')
